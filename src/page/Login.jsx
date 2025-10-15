@@ -11,6 +11,7 @@ const Login = () => {
   const [error, setError] = useState("");
   const { loginAction } = useAuth();
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -19,7 +20,9 @@ const Login = () => {
       setError("Vui lòng nhập tên đăng nhập và mật khẩu.");
       return;
     }
+    setLoading(true);
     const result = await authService.login({ username, password });
+    setLoading(false);
     if (result.success) {
       // Đăng nhập thành công, lưu token và cập nhật context
       loginAction(result.data);
@@ -68,8 +71,24 @@ const Login = () => {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <button type="submit" className="btn btn-primary w-100 mb-3">
-            Đăng Nhập
+
+          <button
+            type="submit"
+            className="btn btn-primary w-100 mb-3"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span className="sr-only"> Đang tải...</span>
+              </>
+            ) : (
+              "Đăng Nhập"
+            )}
           </button>
           <div className="d-flex justify-content-between">
             <Link to="/forgot-password">Quên mật khẩu?</Link>

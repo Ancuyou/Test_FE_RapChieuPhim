@@ -58,23 +58,6 @@ const MainLayout = () => (
 const Router = () => (
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<Home />} />
-      <Route path="/admin" element={<Admin />}>
-        <Route index element={<Navigate to="dashboard" replace />} />
-        <Route path="dashboard" element={<Dashboard />} />
-        <Route path="film" element={<MovieManagement />} />
-        <Route path="category" element={<CategoryManager />} />
-        <Route path="room" element={<RoomManager />} />
-        <Route path="schedule" element={<ScheduleManager />} />
-        <Route path="seat" element={<SeatManager />} />
-        <Route path="user" element={<UserManager />} />
-        <Route path="revenue" element={<RevenueManager />} />
-        <Route path="settings" element={<SettingsManager />} />
-        <Route path="service" element={<ServiceManager />} />
-        <Route path="promotion" element={<PromotionManager />} />
-        <Route path="rooms/:roomId/seats" element={<SeatManager />} />
-        <Route path="film/:movieId" element={<MovieDetail />} />
-      </Route>
       {/* --- Tuyến đường có Layout chung (Header & Footer) --- */}
       <Route element={<MainLayout />}>
         <Route path="/" element={<Home />} />

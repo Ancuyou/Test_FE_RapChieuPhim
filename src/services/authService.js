@@ -97,8 +97,34 @@ const logout = async () => {
     return { success: true };
   }
 };
+const verifyOtp = async (data) => {
+  try {
+    const response = await apiClient.post("/auth/verify-otp", data);
+    return handleApiResponse(response);
+  } catch (error) {
+    return handleError(error);
+  }
+};
 
-export { login, register, forgotPassword, resetPassword, refreshToken, logout };
+const resendOtp = async (data) => {
+  try {
+    const response = await apiClient.post("/auth/resend-otp", data);
+    return handleApiResponse(response);
+  } catch (error) {
+    return handleError(error);
+  }
+};
+
+export {
+  login,
+  register,
+  forgotPassword,
+  resetPassword,
+  refreshToken,
+  logout,
+  verifyOtp,
+  resendOtp,
+};
 
 export default {
   login,
@@ -107,4 +133,6 @@ export default {
   resetPassword,
   refreshToken,
   logout,
+  verifyOtp,
+  resendOtp,
 };

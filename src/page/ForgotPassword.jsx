@@ -7,6 +7,7 @@ const ForgotPassword = () => {
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -16,7 +17,9 @@ const ForgotPassword = () => {
       setError("Vui lòng nhập email của bạn.");
       return;
     }
+    setLoading(true);
     const result = await authService.forgotPassword(email);
+    setLoading(false);
     if (result.success) {
       setMessage("Yêu cầu thành công! Vui lòng kiểm tra email để nhận mã OTP.");
     } else {
@@ -43,7 +46,18 @@ const ForgotPassword = () => {
             />
           </div>
           <button type="submit" className="btn btn-primary w-100 mb-3">
-            Gửi yêu cầu
+            {loading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm"
+                  role="status"
+                  aria-hidden="true"
+                ></span>
+                <span className="sr-only"> Đang tải...</span>
+              </>
+            ) : (
+              "Gửi yêu cầu"
+            )}
           </button>
           <div className="text-center">
             <Link to="/login">Quay lại Đăng nhập</Link>

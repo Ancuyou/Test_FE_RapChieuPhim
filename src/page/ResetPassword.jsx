@@ -10,6 +10,7 @@ const ResetPassword = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
   // Dùng useSearchParams để lấy token từ URL
   const [searchParams] = useSearchParams();
@@ -28,11 +29,12 @@ const ResetPassword = () => {
       setError("Mật khẩu nhập lại không khớp.");
       return;
     }
-
+    setLoading(true);
     const result = await authService.resetPassword({
-      token,
+      token: token,
       newPassword: password,
     });
+    setLoading(false);
 
     if (result.success) {
       setSuccess(
@@ -84,7 +86,18 @@ const ResetPassword = () => {
                       />
                     </div>
                     <button type="submit" className="btn btn-primary w-100">
-                      Xác Nhận
+                      {loading ? (
+                        <>
+                          <span
+                            className="spinner-border spinner-border-sm"
+                            role="status"
+                            aria-hidden="true"
+                          ></span>
+                          <span className="sr-only"> Đang tải...</span>
+                        </>
+                      ) : (
+                        "Xác nhận"
+                      )}
                     </button>
                   </>
                 )}
