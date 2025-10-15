@@ -1,6 +1,6 @@
 // Service API cho xác thực người dùng
 import { API_CONFIG } from "./config";
-import apiClient from "./apiClient"; // Import apiClient
+import apiClient, { publicApiClient } from "./apiClient"; // Import apiClient
 
 const handleApiResponse = (response) => {
   // Axios response có data nằm trong response.data
@@ -32,7 +32,7 @@ const login = async (credentials) => {
 
 const register = async (userData) => {
   try {
-    const response = await apiClient.post("/auth/register", userData);
+    const response = await publicApiClient.post("/auth/register", userData);
     return handleApiResponse(response);
   } catch (error) {
     return handleError(error);
@@ -99,7 +99,7 @@ const logout = async () => {
 };
 const verifyOtp = async (data) => {
   try {
-    const response = await apiClient.post("/auth/verify-otp", data);
+    const response = await publicApiClient.post("/auth/verify-otp", data);
     return handleApiResponse(response);
   } catch (error) {
     return handleError(error);
@@ -108,7 +108,7 @@ const verifyOtp = async (data) => {
 
 const resendOtp = async (data) => {
   try {
-    const response = await apiClient.post("/auth/resend-otp", data);
+    const response = await publicApiClient.post("/auth/resend-otp", data);
     return handleApiResponse(response);
   } catch (error) {
     return handleError(error);

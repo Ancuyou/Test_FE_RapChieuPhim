@@ -1,5 +1,3 @@
-// src/page/ResetPassword.jsx
-
 import { useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import authService from "../services/authService";
@@ -12,7 +10,6 @@ const ResetPassword = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  // Dùng useSearchParams để lấy token từ URL
   const [searchParams] = useSearchParams();
   const token = searchParams.get("token");
 
@@ -40,7 +37,6 @@ const ResetPassword = () => {
       setSuccess(
         "Đặt lại mật khẩu thành công! Tự động chuyển về trang đăng nhập..."
       );
-      // Tự động chuyển về trang login sau 3 giây
       setTimeout(() => {
         navigate("/login");
       }, 3000);
@@ -62,7 +58,6 @@ const ResetPassword = () => {
                   <div className="alert alert-success">{success}</div>
                 )}
 
-                {/* Ẩn form đi sau khi thành công */}
                 {!success && (
                   <>
                     <div className="form-group mb-3">
@@ -85,7 +80,11 @@ const ResetPassword = () => {
                         required
                       />
                     </div>
-                    <button type="submit" className="btn btn-primary w-100">
+                    <button
+                      type="submit"
+                      className="btn btn-primary w-100"
+                      disabled={loading}
+                    >
                       {loading ? (
                         <>
                           <span
