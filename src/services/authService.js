@@ -77,11 +77,15 @@ const refreshToken = async (data) => {
   }
 };
 
-// --- HÀM CẦN TOKEN ---
 const logout = async () => {
   try {
-    const token = localStorage.getItem("refreshToken");
-    await apiClient.post("/auth/logout", { token });
+    const accessToken = localStorage.getItem("accessToken");
+    const refreshToken = localStorage.getItem("refreshToken");
+
+    // Gửi cả hai token lên server để vô hiệu hóa hoàn toàn phiên đăng nhập
+    if (accessToken && refreshToken) {
+      await apiClient.post("/auth/logout", { accessToken, refreshToken });
+    }
     // Xử lý logout ở client sẽ nằm trong AuthContext
     return { success: true };
   } catch (error) {

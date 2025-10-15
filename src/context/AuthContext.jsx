@@ -1,73 +1,88 @@
-// src/context/AuthContext.jsx
+// ancuyou/test_fe_rapchieuphim/src/context/AuthContext.jsx
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
+import apiClient from "../services/apiClient";
 
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  // 1. Khởi tạo user là null, và thêm state `loading` để tránh lỗi khi đang kiểm tra
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 2. useEffect này sẽ chạy MỘT LẦN DUY NHẤT khi app khởi động
   useEffect(() => {
-    try {
-      // Lấy token từ localStorage
+    console.log("--- AuthContext useEffect RUNS ---");
+
+    const verifyUserSession = async () => {
       const accessToken = localStorage.getItem("accessToken");
+      console.log(
+        "1. Checking localStorage. AccessToken found:",
+        accessToken ? "Yes" : "No"
+      );
 
-      if (accessToken) {
-        // Nếu có token, giải mã nó
-        const decodedUser = jwtDecode(accessToken);
+      // Nếu không có token, đây là con đường đúng cho người dùng đã logout
+      if (!accessToken) {
+        console.log(
+          "2. No AccessToken. Setting loading to false. User is logged out."
+        );
+        setLoading(false);
+        return;
+      }
 
-        // Kiểm tra token có hết hạn không (iat: issued at, exp: expired at)
-        // exp được tính bằng giây, Date.now() là mili giây
-        if (decodedUser.exp * 1000 > Date.now()) {
+      // Nếu có token, chúng ta phải hỏi server
+      console.log("2. AccessToken found. Asking server via /introspect...");
+      try {
+        const response = await apiClient.post("/auth/introspect", {
+          token: accessToken,
+        });
+        console.log("3. Server response from /introspect:", response.data);
+
+        if (response.data.data.valid) {
+          console.log("4. Token is VALID. Restoring user session.");
+          const decodedUser = jwtDecode(accessToken);
           const roles = decodedUser.scope ? decodedUser.scope.split(" ") : [];
           setUser({ username: decodedUser.sub, roles });
         } else {
-          // Nếu token hết hạn, xóa nó đi
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
+          console.log(
+            "4. Token is INVALID (logged out/expired). Calling logOut()."
+          );
+          logOut(); // Server báo token không hợp lệ -> logout
         }
+      } catch (error) {
+        console.error(
+          "5. API Error during /introspect. Calling logOut().",
+          error
+        );
+        logOut(); // API lỗi -> logout
+      } finally {
+        console.log("6. Verification finished. Setting loading to false.");
+        setLoading(false);
       }
-    } catch (error) {
-      // Nếu token không hợp lệ, xóa nó đi
-      console.error("Invalid token found in localStorage", error);
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-    } finally {
-      // Dù kết quả thế nào, cũng phải dừng loading để ứng dụng tiếp tục
-      setLoading(false);
-    }
-  }, []); // Mảng rỗng đảm bảo nó chỉ chạy 1 lần
+    };
 
-  // 3. Hàm loginAction: Thiết lập trạng thái và lưu token
+    verifyUserSession();
+  }, []); // Chỉ chạy 1 lần
+
   const loginAction = (data) => {
+    console.log("--- loginAction called ---");
     const { accessToken, refreshToken } = data;
     localStorage.setItem("accessToken", accessToken);
     localStorage.setItem("refreshToken", refreshToken);
-
     const decodedUser = jwtDecode(accessToken);
     const roles = decodedUser.scope ? decodedUser.scope.split(" ") : [];
     setUser({ username: decodedUser.sub, roles });
   };
 
-  // 4. Hàm logOut: Dọn dẹp SẠCH SẼ cả state và localStorage
   const logOut = () => {
+    console.log("--- logOut called ---");
     setUser(null);
     localStorage.removeItem("accessToken");
     localStorage.removeItem("refreshToken");
+    console.log("User state set to null and localStorage cleared.");
   };
 
-  const value = {
-    user,
-    loading, // Cung cấp trạng thái loading ra ngoài
-    loginAction,
-    logOut,
-  };
+  const value = { user, loading, loginAction, logOut };
 
-  // Chỉ render children khi đã kiểm tra xong, tránh các lỗi về race condition
   return (
     <AuthContext.Provider value={value}>
       {!loading && children}

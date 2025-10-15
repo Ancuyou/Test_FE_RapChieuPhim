@@ -7,11 +7,20 @@ import authService from "../services/authService";
 
 const Admin = () => {
   const { user, logOut } = useAuth();
-  const navigate = useNavigate();
   const handleLogout = async () => {
-    await authService.logout(); // Gọi API logout
-    logOut(); // Xóa token và user ở client
-    navigate("/login"); // Chuyển về trang login
+    try {
+      // Luôn gọi API để vô hiệu hóa token trên server trước
+      await authService.logout();
+    } catch (error) {
+      console.error(
+        "Logout API call failed, but proceeding with client-side logout.",
+        error
+      );
+    } finally {
+      logOut(); // Xóa state và localStorage
+      // Điều này buộc trình duyệt phải tải lại trang hoàn toàn, đảm bảo state được reset 100%
+      window.location.href = "/login";
+    }
   };
   return (
     <ToastProvider>
